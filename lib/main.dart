@@ -1,6 +1,6 @@
 import 'package:check_armount/widgets/form.dart';
-import 'package:check_armount/widgets/list_cards_amount.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import './models/transaction.dart';
 import './widgets/chart.dart';
 
@@ -38,9 +38,10 @@ class AmountCheckPage extends StatefulWidget {
 class _AmountCheckPage extends State<AmountCheckPage> {
 
   final List<Transaction> _transactions = [
-    // Transaction(title: 'New hoe 2', date: DateTime.now().subtract(Duration(days: 1)), amount: 39.29),
-    // Transaction(title: 'New hoe 3', date: DateTime.now().subtract(Duration(days: 8)), amount: 49.29),
+    Transaction(title: 'New hoe 2', date: DateTime.now().subtract(Duration(days: 1)), amount: 39.29, id: 'loh'),
+    Transaction(title: 'New hoe 3', date: DateTime.now().subtract(Duration(days: 6)), amount: 49.29, id: 'loh2'),
   ];
+
   List<Transaction> get _recentTransactions {
     return _transactions.where((element){
       return element.date.isAfter(DateTime.now().subtract(const Duration(days: 7)));
@@ -48,6 +49,12 @@ class _AmountCheckPage extends State<AmountCheckPage> {
   }
   final nameControl = TextEditingController();
   final amountControl = TextEditingController();
+
+  void deleteTransaction(String id){
+    setState(() {
+      _transactions.removeWhere((element) => element.id == id);
+    });
+  }
 
   void startFormAddAmount(BuildContext ctx)
   {
@@ -101,7 +108,49 @@ class _AmountCheckPage extends State<AmountCheckPage> {
           children: [
             Chart(_recentTransactions),
             const SizedBox(height: 30,),
-            ListCardsAmount(_transactions)
+            Container(
+              height: 300,
+              child: ListView.builder(
+                itemBuilder: (context, index) {
+                  return Container(
+                    height: 100,
+                    width: 200,
+                    child: Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(context).colorScheme.primary,
+                            radius: 30,
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: FittedBox(
+                                child: Text(
+                                  "\$${_transactions[index].amount.toString()}",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w400, fontSize: 15),
+                                ),
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            _transactions[index].title,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w700, fontSize: 18),
+                          ),
+                          subtitle: Text(
+                            DateFormat('yyyy-MM-dd').format(_transactions[index].date),
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                          trailing: IconButton(icon: const Icon(Icons.delete, color: Colors.redAccent,), onPressed: () => deleteTransaction(_transactions[index].id),),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                itemCount: _transactions.length,
+              ),
+            )
           ],
         ),
       ),
