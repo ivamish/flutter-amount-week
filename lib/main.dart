@@ -2,6 +2,7 @@ import 'package:check_armount/widgets/form.dart';
 import 'package:check_armount/widgets/list_cards_amount.dart';
 import 'package:flutter/material.dart';
 import './models/transaction.dart';
+import './widgets/chart.dart';
 
 void main() {
   runApp(const RootApp());
@@ -37,8 +38,14 @@ class AmountCheckPage extends StatefulWidget {
 class _AmountCheckPage extends State<AmountCheckPage> {
 
   final List<Transaction> _transactions = [
-
+    // Transaction(title: 'New hoe 2', date: DateTime.now().subtract(Duration(days: 1)), amount: 39.29),
+    // Transaction(title: 'New hoe 3', date: DateTime.now().subtract(Duration(days: 8)), amount: 49.29),
   ];
+  List<Transaction> get _recentTransactions {
+    return _transactions.where((element){
+      return element.date.isAfter(DateTime.now().subtract(const Duration(days: 7)));
+    }).toList();
+  }
   final nameControl = TextEditingController();
   final amountControl = TextEditingController();
 
@@ -46,7 +53,7 @@ class _AmountCheckPage extends State<AmountCheckPage> {
   {
     showModalBottomSheet(
         context: ctx,
-        builder: (BuildContext ctx) {
+        builder: (BuildContext ctx2) {
           return FormAddAmount(
               amountControl: amountControl,
               nameControl: nameControl,
@@ -55,7 +62,8 @@ class _AmountCheckPage extends State<AmountCheckPage> {
                   _transactions.add(Transaction(
                       title: nameControl.text,
                       date: DateTime.now(),
-                      amount: double.parse(amountControl.text)));
+                      amount: double.parse(amountControl.text),
+                      id: DateTime.now().toString()));
                   nameControl.clear();
                   amountControl.clear();
                 });
@@ -91,10 +99,8 @@ class _AmountCheckPage extends State<AmountCheckPage> {
         ) : Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-             Card(
-              color: Theme.of(context).colorScheme.primary,
-              child: const Text('chart!'),
-            ),
+            Chart(_recentTransactions),
+            const SizedBox(height: 30,),
             ListCardsAmount(_transactions)
           ],
         ),
